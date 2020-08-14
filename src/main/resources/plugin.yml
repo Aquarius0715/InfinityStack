@@ -1,0 +1,6 @@
+name: InfinityStack
+version: ${project.version}
+main: aquarius0715.infinitystack.main.InfinityStack
+api-version: 1.13
+commands:
+  is:
