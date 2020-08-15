@@ -17,7 +17,7 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
     }
 
-    fun setItem(player: Player, inventory: Inventory){
+    fun setItem(player: Player, inventory: Inventory) {
 
         val list: ArrayList<String> = arrayListOf()
 
@@ -27,11 +27,11 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         resultSet!!.next()
 
-            for ((count, itemData) in plugin.itemData.withIndex()) {
+            for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
 
-                list.add("${ChatColor.YELLOW}${ChatColor.BOLD}${resultSet.getInt(itemData.columnName)}個")
+                list.add("${ChatColor.YELLOW}${ChatColor.BOLD}${resultSet.getInt(columnName)}個")
 
-                if (resultSet.getBoolean("${itemData.columnName}Stats")) {
+                if (resultSet.getBoolean("${columnName}Stats")) {
 
                     list.add("${ChatColor.WHITE}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収は${ChatColor.GREEN}${ChatColor.BOLD}${ChatColor.UNDERLINE}有効")
 
@@ -45,13 +45,13 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
                 list.add("${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}右クリック${ChatColor.WHITE}${ChatColor.BOLD}で1個取り出し")
 
-                list.add("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}${ChatColor.UNDERLINE}シフト+クリック${ChatColor.WHITE}${ChatColor.BOLD}で自動回収切り替え")
+                list.add("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}${ChatColor.UNDERLINE}シフト+左クリック${ChatColor.WHITE}${ChatColor.BOLD}で自動回収切り替え")
 
-                    val button = plugin.itemData[count].itemStack
+                    val button = plugin.loadConfig.itemStackList[count]
 
                     val buttonMeta = button.itemMeta
 
-                    buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.itemData[count].displayName}")
+                    buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.loadConfig.displayNameList[count]}")
 
                     buttonMeta.lore = list
 
@@ -75,7 +75,7 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
 
-        val columnName = plugin.itemData[slot].columnName
+        val columnName = plugin.loadConfig.columnNameList[slot]
 
         val sql = "select $columnName from InfinityStackTable where UUID = '${player.uniqueId}';"
 
@@ -85,23 +85,32 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         val amount = resultSet.getInt(columnName)
 
-        resultSet.close()
-
-        plugin.mySQLManager.close()
-
-        if (amount == 0) return ItemStack(Material.AIR)
+        if (amount <= 0) return ItemStack(Material.AIR)
 
         return if (amount < 64) {
 
             plugin.mySQLUpDate.removeItems(player, columnName, amount)
 
-            ItemStack(plugin.itemData[slot].itemStack.type, amount)
+            resultSet.close()
+
+            plugin.mySQLManager.close()
+
+            plugin.inventory.createInventory(player)
+
+            ItemStack(plugin.loadConfig.itemStackList[slot].type, amount)
+
 
         } else {
 
             plugin.mySQLUpDate.removeItems(player, columnName, 64)
 
-            ItemStack(plugin.itemData[slot].itemStack.type, 64)
+            resultSet.close()
+
+            plugin.mySQLManager.close()
+
+            plugin.inventory.createInventory(player)
+
+            ItemStack(plugin.loadConfig.itemStackList[slot].type, 64)
 
         }
 
@@ -109,7 +118,7 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
     fun getItemOne(player: Player, slot: Int): ItemStack {
 
-        val columnName = plugin.itemData[slot].columnName
+        val columnName = plugin.loadConfig.columnNameList[slot]
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
 
@@ -125,9 +134,13 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         plugin.mySQLManager.close()
 
-        if (amount == 0) return ItemStack(Material.AIR)
+        if (amount <= 0) return ItemStack(Material.AIR)
 
-        return ItemStack(plugin.itemData[slot].itemStack.type, 1)
+        plugin.inventory.createInventory(player)
+
+        plugin.mySQLUpDate.removeItems(player, columnName, 1)
+
+        return ItemStack(plugin.loadConfig.itemStackList[slot].type, 1)
 
     }
 
@@ -135,18 +148,18 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        for (itemData in plugin.itemData) {
+        for (columnName in plugin.loadConfig.columnNameList) {
 
-            if (checkResultSet("describe InfinityStackTable ${itemData.columnName};")) {
+            if (checkResultSet("describe InfinityStackTable ${columnName};")) {
 
                 return
 
             } else {
 
-              plugin.mySQLManager.execute("alter table InfinityStackTable add ${itemData.columnName} int;")
-              plugin.mySQLManager.execute("alter table InfinityStackTable add ${itemData.columnName}Stats boolean;")
+              plugin.mySQLManager.execute("alter table InfinityStackTable add $columnName int;")
+              plugin.mySQLManager.execute("alter table InfinityStackTable add ${columnName}Stats boolean;")
 
-                plugin.mySQLUpDate.setNullColumn(itemData.columnName)
+                plugin.mySQLUpDate.setNullColumn(columnName)
 
             }
 
@@ -194,23 +207,13 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         resultSet!!.next()
 
-        if (resultSet.getBoolean("${columnName}Stats")) {
+        val stats = resultSet.getBoolean("${columnName}Stats")
 
-            resultSet.close()
+        resultSet.close()
 
-            plugin.mySQLManager.close()
+        plugin.mySQLManager.close()
 
-            return true
-
-        } else {
-
-            resultSet.close()
-
-            plugin.mySQLManager.close()
-
-            return false
-
-        }
+        return stats
 
     }
 

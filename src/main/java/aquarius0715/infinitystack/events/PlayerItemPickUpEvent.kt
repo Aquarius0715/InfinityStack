@@ -1,7 +1,6 @@
 package aquarius0715.infinitystack.events
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerPickupItemEvent
@@ -20,15 +19,9 @@ class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener {
 
         item.amount = 1
 
-        for (itemData in plugin.itemData) {
+            if (plugin.loadConfig.itemStackList.contains(item)) {
 
-            if (itemData.itemStack == item) {
-
-                Bukkit.broadcastMessage("同じアイテム")
-
-                plugin.mySQLUpDate.addItems(event.player, itemData.columnName, amount, event)
-
-            }
+                plugin.mySQLUpDate.addItems(event.player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!, amount, event)
 
         }
 

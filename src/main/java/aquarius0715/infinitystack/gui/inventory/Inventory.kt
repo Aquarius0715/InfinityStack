@@ -5,13 +5,16 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 class Inventory(private val plugin: InfinityStack) {
 
-    val inventory = Bukkit.createInventory(null, 54, "${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}InfinityStack")
+    lateinit var inventory: Inventory
 
     fun createInventory(player: Player) {
+
+        inventory = Bukkit.createInventory(null, 54, "${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}InfinityStack")
 
         val space = ItemStack(Material.GRAY_STAINED_GLASS_PANE)
         val spaceMeta = space.itemMeta

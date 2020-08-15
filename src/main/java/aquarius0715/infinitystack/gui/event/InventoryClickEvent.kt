@@ -14,25 +14,23 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         val player = event.whoClicked as Player
 
-        event.isCancelled = true
-
         if (event.inventory != plugin.inventory.inventory) return
+
+        event.isCancelled = true
 
         if (event.currentItem == null) return
 
         if (event.currentItem!!.itemMeta == null) return
 
-        if (plugin.itemData.size < event.slot + 1) return
-
-        if (!plugin.mySQLSelect.checkStackStats(player, plugin.itemData[event.slot].columnName)) return
-
-        if (!plugin.mySQLSelect.checkStackStats(player)) return
+        if (plugin.loadConfig.itemStackList.size < event.slot + 1) return
 
         if (event.isLeftClick) {
 
             player.inventory.addItem(plugin.mySQLSelect.getItemOneStack(player, event.slot))
 
             plugin.inventory.createInventory(player)
+
+            plugin.loadConfig.loadConfig()
 
         }
 
@@ -42,15 +40,17 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
             plugin.inventory.createInventory(player)
 
+            plugin.loadConfig.loadConfig()
 
         }
 
-        if (event.isShiftClick) {
+        if (event.isShiftClick && event.isLeftClick) {
 
-            plugin.mySQLUpDate.setStackStats(player, plugin.itemData[event.slot].columnName)
+            plugin.mySQLUpDate.setStackStats(player, plugin.loadConfig.columnNameList[event.slot])
 
             plugin.inventory.createInventory(player)
 
+            plugin.loadConfig.loadConfig()
 
         }
 

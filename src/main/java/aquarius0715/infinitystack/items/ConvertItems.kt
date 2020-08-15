@@ -1,6 +1,5 @@
 package aquarius0715.infinitystack.items
 
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream

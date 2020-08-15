@@ -14,15 +14,15 @@ class MySQLInsert(private val plugin: InfinityStack) {
         var sql = "insert into InfinityStackTable " +
                 "(PlayerName, UUID, StackStats"
 
-        for (itemData in plugin.itemData) {
+        for (columnName in plugin.loadConfig.columnNameList) {
 
-            sql += ", ${itemData.columnName}, ${itemData.columnName}Stats"
+            sql += ", ${columnName}, ${columnName}Stats"
 
         }
 
         sql += ") VALUE ('${player.name}', '${player.uniqueId}', true"
 
-        for (count in plugin.itemData) {
+        for (count in plugin.loadConfig.columnNameList) {
 
             sql += ", 0, true"
 

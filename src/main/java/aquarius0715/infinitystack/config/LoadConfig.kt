@@ -2,16 +2,17 @@ package aquarius0715.infinitystack.config
 
 import aquarius0715.infinitystack.main.InfinityStack
 import org.bukkit.inventory.ItemStack
+import sun.security.ec.point.ProjectivePoint
 
 class LoadConfig(private val plugin: InfinityStack) {
 
-    private val columnNameList: MutableList<String> = mutableListOf()
+    val itemStackAndColumnNameMap: MutableMap<ItemStack, String> = mutableMapOf()
 
-    private val displayNameList: MutableList<String?> = mutableListOf()
+    val itemStackList: MutableList<ItemStack> = mutableListOf()
 
-    private val itemStackList: MutableList<ItemStack> = mutableListOf()
+    val columnNameList: MutableList<String> = mutableListOf()
 
-    private val itemMap: MutableMap<ItemStack, String> = mutableMapOf()
+    val displayNameList: MutableList<String> = mutableListOf()
 
     fun loadConfig() {
 
@@ -19,24 +20,31 @@ class LoadConfig(private val plugin: InfinityStack) {
 
         plugin.reloadConfig()
 
+        itemStackAndColumnNameMap.clear()
+
+        itemStackList.clear()
+
+        columnNameList.clear()
+
+        displayNameList.clear()
+
         for (columnName in config.getConfigurationSection("itemData")!!.getKeys(false)) {
+
+            val base64 = config.getString("itemData.$columnName.base64")!!
+
+            val itemStack = plugin.convertItems.itemFromBase64(base64)!!
+
+            val displayName = config.getString("itemData.$columnName.displayName")!!
+
+            itemStack.amount = 1
+
+            itemStackAndColumnNameMap[itemStack] = columnName
 
             columnNameList.add(columnName)
 
-            val base64Path = "itemData.$columnName.base64"
+            displayNameList.add(displayName)
 
-            config.getString("itemData.$columnName.displayName")?.let {
-                InfinityStack.ItemData(it,
-                        plugin.convertItems.itemFromBase64(config.getString(base64Path))!!,
-                        config.getString(base64Path)!!,
-                        columnName)
-            }?.let { plugin.itemData.add(it) }
-
-            itemStackList.add(plugin.convertItems.itemFromBase64(config.getString(base64Path))!!)
-
-            itemMap[plugin.convertItems.itemFromBase64(config.getString(base64Path))!!] = columnName.toString()
-
-            displayNameList.add(config.getString("itemData.$columnName.displayName"))
+            itemStackList.add(itemStack)
 
         }
 

@@ -1,6 +1,7 @@
 package aquarius0715.infinitystack.mysql
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerPickupItemEvent
 
@@ -24,17 +25,7 @@ class MySQLUpDate(private val plugin: InfinityStack) {
 
     fun setStackStats(player: Player, columnName: String) {
 
-        if (plugin.mySQLSelect.checkStackStats(player, columnName)) {
-
-            plugin.mySQLManager.execute(
-                    "update InfinityStackTable set ${columnName}Stats = false where UUID = '${player.uniqueId}'")
-
-        } else {
-
-            plugin.mySQLManager.execute(
-                    "update InfinityStackTable set ${columnName}Stats = true where UUID = '${player.uniqueId}'")
-
-        }
+        plugin.mySQLManager.execute("update InfinityStackTable set ${columnName}Stats = ${!plugin.mySQLSelect.checkStackStats(player, columnName)} where UUID = '${player.uniqueId}';")
 
     }
 
