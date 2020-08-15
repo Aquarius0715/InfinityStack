@@ -6,7 +6,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent
 
 class MySQLUpDate(private val plugin: InfinityStack) {
 
-    fun updateItems(player: Player, columnName: String, amount: Int, event: PlayerPickupItemEvent) {
+    fun addItems(player: Player, columnName: String, amount: Int, event: PlayerPickupItemEvent) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
@@ -19,6 +19,32 @@ class MySQLUpDate(private val plugin: InfinityStack) {
         event.isCancelled = true
 
         event.item.remove()
+
+    }
+
+    fun setStackStats(player: Player, columnName: String) {
+
+        if (plugin.mySQLSelect.checkStackStats(player, columnName)) {
+
+            plugin.mySQLManager.execute(
+                    "update InfinityStackTable set ${columnName}Stats = false where UUID = '${player.uniqueId}'")
+
+        } else {
+
+            plugin.mySQLManager.execute(
+                    "update InfinityStackTable set ${columnName}Stats = true where UUID = '${player.uniqueId}'")
+
+        }
+
+    }
+
+    fun removeItems(player: Player, columnName: String, amount: Int) {
+
+        if (!plugin.mySQLManager.sqlConnectSafely()) return
+
+        val sql = "update InfinityStackTable set $columnName = $columnName - $amount where UUID = '${player.uniqueId}';"
+
+        plugin.mySQLManager.execute(sql)
 
     }
 

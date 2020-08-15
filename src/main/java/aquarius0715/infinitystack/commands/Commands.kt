@@ -26,7 +26,7 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                     0 -> {
 
-
+                        plugin.inventory.createInventory(sender)
 
                     }
 

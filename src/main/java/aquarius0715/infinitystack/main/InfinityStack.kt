@@ -4,11 +4,15 @@ import aquarius0715.infinitystack.events.PlayerItemPickUpEvent
 import aquarius0715.infinitystack.events.PlayerJoinEvent
 import aquarius0715.infinitystack.commands.Commands
 import aquarius0715.infinitystack.config.LoadConfig
+import aquarius0715.infinitystack.gui.event.InventoryClickEvent
+import aquarius0715.infinitystack.gui.inventory.Inventory
 import aquarius0715.infinitystack.items.ConvertItems
 import aquarius0715.infinitystack.mysql.MySQLInsert
 import aquarius0715.infinitystack.mysql.MySQLManager
 import aquarius0715.infinitystack.mysql.MySQLSelect
 import aquarius0715.infinitystack.mysql.MySQLUpDate
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
@@ -28,9 +32,11 @@ class InfinityStack : JavaPlugin() {
 
     val stackStats: MutableMap<UUID, Boolean> = mutableMapOf()
 
-    val itemMap: MutableMap<String?, String?> = mutableMapOf()
+    val inventory = Inventory(this)
 
     val loadConfig = LoadConfig(this)
+
+    val itemData: MutableList<ItemData> = mutableListOf()
 
     override fun onEnable() {
 
@@ -44,6 +50,10 @@ class InfinityStack : JavaPlugin() {
 
         server.pluginManager.registerEvents(PlayerJoinEvent(this), this)
 
+        server.pluginManager.registerEvents(InventoryClickEvent(this), this)
+
     }
+
+    class ItemData(val displayName: String, val itemStack: ItemStack, val base64: String, val columnName: String)
 
 }

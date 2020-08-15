@@ -5,7 +5,6 @@ import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerPickupItemEvent
-import org.bukkit.inventory.ItemStack
 
 class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener {
 
@@ -15,11 +14,21 @@ class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener {
 
         if (!plugin.stackStats[event.player.uniqueId]!!) return
 
-        val key = plugin.convertItems.itemToBase64(ItemStack(event.item.itemStack.type))
+        val item = event.item.itemStack
 
-        if (plugin.itemMap.containsKey(key)) {
+        val amount = item.amount
 
-            plugin.mySQLUpDate.updateItems(event.player, "${plugin.itemMap[key]}", event.item.itemStack.amount, event)
+        item.amount = 1
+
+        for (itemData in plugin.itemData) {
+
+            if (itemData.itemStack == item) {
+
+                Bukkit.broadcastMessage("同じアイテム")
+
+                plugin.mySQLUpDate.addItems(event.player, itemData.columnName, amount, event)
+
+            }
 
         }
 

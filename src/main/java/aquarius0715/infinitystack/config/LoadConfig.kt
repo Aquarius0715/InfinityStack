@@ -1,15 +1,17 @@
 package aquarius0715.infinitystack.config
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Bukkit
+import org.bukkit.inventory.ItemStack
 
 class LoadConfig(private val plugin: InfinityStack) {
 
-    val columnNameList: MutableList<String> = mutableListOf()
+    private val columnNameList: MutableList<String> = mutableListOf()
 
     private val displayNameList: MutableList<String?> = mutableListOf()
 
-    private val base64List: MutableList<String?> = mutableListOf()
+    private val itemStackList: MutableList<ItemStack> = mutableListOf()
+
+    private val itemMap: MutableMap<ItemStack, String> = mutableMapOf()
 
     fun loadConfig() {
 
@@ -21,13 +23,18 @@ class LoadConfig(private val plugin: InfinityStack) {
 
             columnNameList.add(columnName)
 
-            val path = "itemData.$columnName.base64"
+            val base64Path = "itemData.$columnName.base64"
 
-            base64List.add(config.getString(path))
+            config.getString("itemData.$columnName.displayName")?.let {
+                InfinityStack.ItemData(it,
+                        plugin.convertItems.itemFromBase64(config.getString(base64Path))!!,
+                        config.getString(base64Path)!!,
+                        columnName)
+            }?.let { plugin.itemData.add(it) }
 
-            plugin.itemMap[config.getString(path)] = columnName.toString()
+            itemStackList.add(plugin.convertItems.itemFromBase64(config.getString(base64Path))!!)
 
-            Bukkit.broadcastMessage("${plugin.itemMap[config.getString("itemData.$columnName.base64")]}")
+            itemMap[plugin.convertItems.itemFromBase64(config.getString(base64Path))!!] = columnName.toString()
 
             displayNameList.add(config.getString("itemData.$columnName.displayName"))
 
