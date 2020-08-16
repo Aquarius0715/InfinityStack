@@ -11,20 +11,20 @@ class MySQLInsert(private val plugin: InfinityStack) {
 
         if (plugin.mySQLSelect.isExistRecord(player)) return
 
-        var sql = "insert into InfinityStackTable " +
-                "(PlayerName, UUID, StackStats"
+        var sql = "INSERT INTO InfinityStackTable " +
+                "(PLAYER_NAME, UUID, STACK_STATS"
 
         for (columnName in plugin.loadConfig.columnNameList) {
 
-            sql += ", ${columnName}, ${columnName}Stats"
+            sql += ", ${columnName}, ${columnName}_STATS"
 
         }
 
-        sql += ") VALUE ('${player.name}', '${player.uniqueId}', true"
+        sql += ") VALUE ('${player.name}', '${player.uniqueId}', TRUE"
 
         for (count in plugin.loadConfig.columnNameList) {
 
-            sql += ", 0, true"
+            sql += ", 0, TRUE"
 
         }
 

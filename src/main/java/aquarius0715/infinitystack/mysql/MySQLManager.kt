@@ -13,10 +13,13 @@ import java.util.logging.Level
  *
  * Refactored by Aquarius0715 on 2020/08/14
  */
+
 class MySQLManager(private val plugin: InfinityStack, private val conName: String) {
+
     var debugMode = false
     private var host: String? = null
     private var db: String? = null
+    private var log: Boolean = false
     private var user: String? = null
     private var pass: String? = null
     private var port: String? = null
@@ -28,6 +31,7 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
     /////////////////////////////////
     //       設定ファイル読み込み
     /////////////////////////////////
+
     fun loadConfig() {
         //   plugin.getLogger().info("MYSQL Config loading");
         plugin.reloadConfig()
@@ -36,6 +40,7 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
         pass = plugin.config.getString("mysql.pass")
         port = plugin.config.getString("mysql.port")
         db = plugin.config.getString("mysql.db")
+        log = plugin.config.getBoolean("mysql.log")
         //  plugin.getLogger().info("Config loaded");
     }
 
@@ -49,7 +54,7 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
     ////////////////////////////////
     //       接続
     ////////////////////////////////
-    fun Connect(host: String?, db: String?, user: String?, pass: String?, port: String?): Boolean {
+    private fun connect(host: String?, db: String?, user: String?, pass: String?, port: String?): Boolean {
         this.host = host
         this.db = db
         this.user = user
@@ -63,7 +68,9 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
         try {
             st = con!!.createStatement()
             connected = true
-            plugin.logger.info("[$conName] Connected to the database.")
+
+                plugin.logger.info("[$conName] Connected to the database.")
+
         } catch (var6: SQLException) {
             connected = false
             plugin.logger.info("[$conName] Could not connect to the database.")
@@ -76,7 +83,7 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
     //         接続確認
     //////////////////////////////////////////
     fun connectCheck(): Boolean {
-        return Connect(host, db, user, pass, port)
+        return connect(host, db, user, pass, port)
     }
 
     ////////////////////////////////
@@ -177,15 +184,15 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
     init {
         connected = false
         loadConfig()
-        connected = Connect(host, db, user, pass, port)
+        connected = connect(host, db, user, pass, port)
         if (!connected) {
             plugin.logger.info("Unable to establish a MySQL connection.")
         }
 
         execute("create table if not exists InfinityStackTable (" +
-                "PlayerName VARCHAR(16), " +
+                "PLAYER_NAME VARCHAR(16), " +
                 "UUID VARCHAR(36) not null primary key, " +
-                "StackStats BOOLEAN" +
+                "STACK_STATS BOOLEAN" +
                 ");")
 
     }

@@ -2,11 +2,12 @@ package aquarius0715.infinitystack.config
 
 import aquarius0715.infinitystack.main.InfinityStack
 import org.bukkit.inventory.ItemStack
-import sun.security.ec.point.ProjectivePoint
 
 class LoadConfig(private val plugin: InfinityStack) {
 
     val itemStackAndColumnNameMap: MutableMap<ItemStack, String> = mutableMapOf()
+
+    val itemStackAndDisplayName: MutableMap<ItemStack, String> = mutableMapOf()
 
     val itemStackList: MutableList<ItemStack> = mutableListOf()
 
@@ -21,6 +22,8 @@ class LoadConfig(private val plugin: InfinityStack) {
         plugin.reloadConfig()
 
         itemStackAndColumnNameMap.clear()
+
+        itemStackAndDisplayName.clear()
 
         itemStackList.clear()
 
@@ -39,6 +42,8 @@ class LoadConfig(private val plugin: InfinityStack) {
             itemStack.amount = 1
 
             itemStackAndColumnNameMap[itemStack] = columnName
+
+            itemStackAndDisplayName[itemStack] = displayName
 
             columnNameList.add(columnName)
 

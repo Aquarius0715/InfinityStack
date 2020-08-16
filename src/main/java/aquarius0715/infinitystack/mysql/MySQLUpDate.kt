@@ -1,7 +1,7 @@
 package aquarius0715.infinitystack.mysql
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerPickupItemEvent
 
@@ -11,7 +11,7 @@ class MySQLUpDate(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        val sql = "update InfinityStackTable set $columnName = $columnName + $amount where UUID = '${player.uniqueId}';"
+        val sql = "UPDATE InfinityStackTable SET $columnName = $columnName + $amount WHERE UUID = '${player.uniqueId}';"
 
         plugin.mySQLManager.execute(sql)
 
@@ -25,7 +25,19 @@ class MySQLUpDate(private val plugin: InfinityStack) {
 
     fun setStackStats(player: Player, columnName: String) {
 
-        plugin.mySQLManager.execute("update InfinityStackTable set ${columnName}Stats = ${!plugin.mySQLSelect.checkStackStats(player, columnName)} where UUID = '${player.uniqueId}';")
+        plugin.mySQLManager.execute("UPDATE InfinityStackTable SET ${columnName}_STATS = ${!plugin.mySQLSelect.checkStackStats(player, columnName)} WHERE UUID = '${player.uniqueId}';")
+
+        plugin.inventory.createCheckStackInventory(player)
+
+    }
+
+    fun setStackStats(player: Player) {
+
+        plugin.mySQLManager.execute("UPDATE InfinityStackTable SET STACK_STATS = ${!plugin.mySQLSelect.checkStackStats(player)} WHERE UUID = '${player.uniqueId}';")
+
+        plugin.stackStats[player.uniqueId] = plugin.mySQLSelect.checkStackStats(player)
+
+        plugin.inventory.createCheckStackInventory(player)
 
     }
 
@@ -33,7 +45,7 @@ class MySQLUpDate(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        val sql = "update InfinityStackTable set $columnName = $columnName - $amount where UUID = '${player.uniqueId}';"
+        val sql = "UPDATE InfinityStackTable SET $columnName = $columnName - $amount WHERE UUID = '${player.uniqueId}';"
 
         plugin.mySQLManager.execute(sql)
 
@@ -43,7 +55,7 @@ class MySQLUpDate(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        plugin.mySQLManager.execute("update InfinityStackTable set $columnName = 0 WHERE $columnName IS NULL;")
+        plugin.mySQLManager.execute("UPDATE InfinityStackTable SET $columnName = 0 WHERE $columnName IS NULL;")
 
     }
 

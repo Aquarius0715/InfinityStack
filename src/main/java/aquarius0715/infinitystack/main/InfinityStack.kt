@@ -11,12 +11,16 @@ import aquarius0715.infinitystack.mysql.MySQLInsert
 import aquarius0715.infinitystack.mysql.MySQLManager
 import aquarius0715.infinitystack.mysql.MySQLSelect
 import aquarius0715.infinitystack.mysql.MySQLUpDate
+import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
 class InfinityStack : JavaPlugin() {
 
-    val prefix = "[InfinityStack]"
+    val prefix = "${ChatColor.BOLD}[" +
+            "${ChatColor.GOLD}${ChatColor.BOLD}Infinity" +
+            "${ChatColor.YELLOW}${ChatColor.BOLD}Stack" +
+            "${ChatColor.WHITE}${ChatColor.BOLD}]"
 
     val convertItems = ConvertItems()
 

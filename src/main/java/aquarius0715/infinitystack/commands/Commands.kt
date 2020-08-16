@@ -1,6 +1,7 @@
 package aquarius0715.infinitystack.commands
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -26,7 +27,23 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                     0 -> {
 
-                        plugin.inventory.createInventory(sender)
+                        plugin.inventory.createCheckStackInventory(sender)
+
+                        sender.playSound(sender.location, Sound.BLOCK_ENDER_CHEST_OPEN, 8.0F, 0.0F)
+
+                    }
+
+                    1 -> {
+
+                        when (args[0]) {
+
+                            "help" -> {
+
+
+
+                            }
+
+                        }
 
                     }
 
