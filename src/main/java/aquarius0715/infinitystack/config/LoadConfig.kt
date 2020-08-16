@@ -53,8 +53,6 @@ class LoadConfig(private val plugin: InfinityStack) {
 
         }
 
-        plugin.mySQLSelect.checkExistColumn()
-
     }
 
 }

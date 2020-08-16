@@ -20,7 +20,6 @@ class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener {
 
         item.amount = 1
 
-
         if (!plugin.stackStats[event.player.uniqueId]!!) return
 
         if (!plugin.mySQLSelect.getStackStats(player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!)) return

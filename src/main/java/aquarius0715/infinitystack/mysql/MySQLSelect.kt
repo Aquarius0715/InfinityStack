@@ -25,8 +25,6 @@ class MySQLSelect(private val plugin: InfinityStack) {
         val changeStackStatsButton = ItemStack(Material.COMPASS)
         val changeStackStatsButtonMeta = changeStackStatsButton.itemMeta
 
-        val stats: String
-
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
         val resultSet = plugin.mySQLManager.query("SELECT * FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
@@ -88,6 +86,8 @@ class MySQLSelect(private val plugin: InfinityStack) {
         changeStackStatsButton.itemMeta = changeStackStatsButtonMeta
 
         inventory.setItem(52, changeStackStatsButton)
+
+        list.clear()
 
         resultSet.close()
 
@@ -190,7 +190,7 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
         if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        for (columnName in plugin.loadConfig.columnNameList) {
+        for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
 
             if (checkResultSet("DESCRIBE InfinityStackTable ${columnName};")) {
 
@@ -198,8 +198,8 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
             } else {
 
-              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD $columnName INT;")
-              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD ${columnName}_STATS BOOLEAN;")
+              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD $columnName INT AFTER ${plugin.loadConfig.columnNameList[count - 1]};")
+              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD ${columnName}_STATS BOOLEAN ${columnName};")
 
                 plugin.mySQLUpDate.setNullColumn(columnName)
 

@@ -44,6 +44,8 @@ class InfinityStack : JavaPlugin() {
 
         loadConfig.loadConfig()
 
+        mySQLSelect.checkExistColumn()
+
         Objects.requireNonNull(getCommand("is")!!.setExecutor(Commands(this)))
 
         server.pluginManager.registerEvents(PlayerItemPickUpEvent(this), this)

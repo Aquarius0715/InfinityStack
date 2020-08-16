@@ -39,11 +39,15 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
                 plugin.inventory.createSetItemInventory(player)
 
+                player.playSound(player.location, Sound.BLOCK_CHEST_OPEN, 8.0F, 0.0F)
+
             }
 
             52 -> {
 
                 plugin.mySQLUpDate.setStackStats(player)
+
+                player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
             }
 
@@ -148,6 +152,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
                 plugin.mySQLManager.execute(sql)
 
                 player.sendMessage("${plugin.prefix}アイテムを登録しました。")
+
+                plugin.inventory.createCheckStackInventory(player)
 
             }
 
