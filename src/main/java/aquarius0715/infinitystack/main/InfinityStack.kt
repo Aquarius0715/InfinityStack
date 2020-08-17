@@ -5,6 +5,7 @@ import aquarius0715.infinitystack.events.PlayerJoinEvent
 import aquarius0715.infinitystack.commands.Commands
 import aquarius0715.infinitystack.config.LoadConfig
 import aquarius0715.infinitystack.gui.event.InventoryClickEvent
+import aquarius0715.infinitystack.gui.event.InventoryCloseEvent
 import aquarius0715.infinitystack.gui.inventory.Inventory
 import aquarius0715.infinitystack.items.ConvertItems
 import aquarius0715.infinitystack.mysql.MySQLInsert
@@ -34,6 +35,8 @@ class InfinityStack : JavaPlugin() {
 
     val stackStats: MutableMap<UUID, Boolean> = mutableMapOf()
 
+    val closeStats: MutableMap<UUID, Boolean> = mutableMapOf()
+
     val inventory = Inventory(this)
 
     val loadConfig = LoadConfig(this)
@@ -53,6 +56,8 @@ class InfinityStack : JavaPlugin() {
         Objects.requireNonNull(getCommand("is")!!.setExecutor(Commands(this)))
 
         server.pluginManager.registerEvents(PlayerItemPickUpEvent(this), this)
+
+        server.pluginManager.registerEvents(InventoryCloseEvent(this), this)
 
         server.pluginManager.registerEvents(PlayerJoinEvent(this), this)
 

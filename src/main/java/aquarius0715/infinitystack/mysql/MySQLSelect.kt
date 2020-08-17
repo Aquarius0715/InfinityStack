@@ -149,8 +149,6 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                 plugin.mySQLUpDate.removeItems(player, columnName, 1)
 
-                plugin.inventory.createCheckStackInventory(player)
-
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
                 return ItemStack(plugin.loadConfig.itemStackList[slot].type, 1)
@@ -161,8 +159,6 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                     plugin.mySQLUpDate.removeItems(player, columnName, amount)
 
-                    plugin.inventory.createCheckStackInventory(player)
-
                     player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
                     ItemStack(plugin.loadConfig.itemStackList[slot].type, amount)
@@ -171,8 +167,6 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
                 } else {
 
                     plugin.mySQLUpDate.removeItems(player, columnName, maxStackSize)
-
-                    plugin.inventory.createCheckStackInventory(player)
 
                     player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 

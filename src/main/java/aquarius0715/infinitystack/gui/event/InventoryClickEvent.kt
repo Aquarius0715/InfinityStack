@@ -17,8 +17,6 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         if (event.inventory != plugin.inventory.checkStackInventoryMap[player.uniqueId]) return
 
-        if (event.inventory == player.inventory) return
-
         event.isCancelled = true
 
         if (event.currentItem == null) return
@@ -49,6 +47,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
+                plugin.inventory.createCheckStackInventory(player)
+
             }
 
         }
@@ -61,6 +61,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
             player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, plugin.loadConfig.itemStackList[event.slot].maxStackSize))
 
+            plugin.inventory.createCheckStackInventory(player)
+
         }
 
         if (event.isRightClick &&
@@ -69,6 +71,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
             player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, 1))
 
+            plugin.inventory.createCheckStackInventory(player)
+
         }
 
         if (event.isShiftClick && event.isLeftClick) {
@@ -76,6 +80,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
             plugin.mySQLUpDate.setStackStats(player, plugin.loadConfig.columnNameList[event.slot])
 
             player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
+
+            plugin.inventory.createCheckStackInventory(player)
 
         }
 
@@ -89,8 +95,6 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         if (event.inventory != plugin.inventory.setItemInventoryMap[player.uniqueId]) return
 
-        if (event.inventory == player.inventory) return
-
         when (event.slot) {
 
             45, 46, 47, 51, 52, 53 -> {
@@ -103,7 +107,13 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
                 event.isCancelled = true
 
+                plugin.closeStats[player.uniqueId] = true
+
                 plugin.mySQLUpDate.addItemsLocal(player, event.inventory)
+
+                plugin.inventory.createCheckStackInventory(player)
+
+                plugin.closeStats[player.uniqueId] = false
 
             }
 

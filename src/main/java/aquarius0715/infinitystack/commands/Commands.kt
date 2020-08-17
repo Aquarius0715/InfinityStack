@@ -1,6 +1,7 @@
 package aquarius0715.infinitystack.commands
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -19,22 +20,6 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
         }
 
-        if (!plugin.sqlStats) {
-
-            sender.sendMessage("${plugin.prefix}DBが稼働停止しています。")
-
-            return true
-
-        }
-
-        if (!plugin.pluginStats) {
-
-            sender.sendMessage("${plugin.prefix}プラグインが稼働停止しています。")
-
-            return true
-
-        }
-
         when (label) {
 
             "is" -> {
@@ -42,6 +27,8 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
                 when (args.size) {
 
                     0 -> {
+
+                        if (!checkCommandStats(sender)) return false
 
                         plugin.inventory.createCheckStackInventory(sender)
 
@@ -57,21 +44,187 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                             "help" -> {
 
+                                if (!checkCommandStats(sender)) return false
+
                                 sender.sendMessage("${plugin.prefix}</is>: InfinityStackのメインメニューを開きます。")
                                 sender.sendMessage("${plugin.prefix}</is help>: この説明画面を開きます。")
                                 sender.sendMessage("${plugin.prefix}</is plugin on>: このプラグインの利用を許可します。")
                                 sender.sendMessage("${plugin.prefix}</is plugin off>: このプラグインの利用を禁止します。")
                                 sender.sendMessage("${plugin.prefix}</is mysql on>: mysqlとの接続を許可します。")
                                 sender.sendMessage("${plugin.prefix}</is mysql off>: mysqlとの接続を禁止します。")
-                                sender.sendMessage("${plugin.prefix}</is mysql remove [ColumnName]>: 指定したInfinityStack情報を一括削除します。")
+                                sender.sendMessage("${plugin.prefix}</is mysql remove [ColumnName]>: InfinityStack情報を一括削除します。")
                                 sender.sendMessage("${plugin.prefix}注意！以下のコマンドは、InfinityStackを適用させたいアイテムを一つ持ちながら実行すること。")
-                                sender.sendMessage("${plugin.prefix}</is create [ColumnName] [DisplayName]>: displayNameを決めて新しいInfinityStackを作ります。")
+                                sender.sendMessage("${plugin.prefix}</is create [ColumnName] [DisplayName]>: 新しいInfinityStackを作ります。")
 
                             }
 
                             "reload" -> {
 
+                                if (!checkCommandStats(sender)) return false
+
+                                Bukkit.broadcastMessage("${plugin.prefix}プラグインを再起動中です。")
+
+                                plugin.pluginStats = false
+
+                                plugin.sqlStats = false
+
                                 plugin.onEnable()
+
+                                Bukkit.broadcastMessage("${plugin.prefix}プラグインの再起動が終了しました。")
+
+                                plugin.pluginStats = true
+
+                                plugin.sqlStats = true
+
+                                return true
+
+                            }
+
+                        }
+
+                    }
+
+                    2 -> {
+
+                        when(args[0]) {
+
+                            "plugin" -> {
+
+                                when (args[1]) {
+
+                                    "on" -> {
+
+                                        if (!checkCommandStats(sender)) return false
+
+                                        return if (plugin.pluginStats) {
+
+                                            sender.sendMessage("${plugin.prefix}すでにプラグインの使用は許可されています。")
+
+                                            true
+
+                                        } else {
+
+                                            plugin.pluginStats = true
+
+                                            sender.sendMessage("${plugin.prefix}プラグインの使用を禁止しました。")
+
+                                            true
+
+                                        }
+
+                                    }
+
+                                    "off" -> {
+
+                                        if (!checkCommandStats(sender)) return false
+
+                                        return if (!plugin.pluginStats) {
+
+                                            sender.sendMessage("${plugin.prefix}すでにプラグインの使用は禁止されています。")
+
+                                            true
+
+                                        } else {
+
+                                            plugin.pluginStats = false
+
+                                            sender.sendMessage("${plugin.prefix}プラグインの使用を許可しました。")
+
+                                            true
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            "mysql" -> {
+
+                                when (args[1]) {
+
+                                    "on" -> {
+
+                                        if (!checkCommandStats(sender)) return false
+
+                                        return if (plugin.sqlStats) {
+
+                                            sender.sendMessage("${plugin.prefix}すでにMYSQLの使用は許可されています。")
+
+                                            true
+
+                                        } else {
+
+                                            plugin.sqlStats = true
+
+                                            sender.sendMessage("${plugin.prefix}MYSQLの使用を禁止しました。")
+
+                                            true
+
+                                        }
+
+                                    }
+
+                                    "off" -> {
+
+                                        if (!checkCommandStats(sender)) return false
+
+                                        return if (!plugin.sqlStats) {
+
+                                            sender.sendMessage("${plugin.prefix}すでにMYSQLの使用は禁止されています。")
+
+                                            true
+
+                                        } else {
+
+                                            plugin.sqlStats = false
+
+                                            sender.sendMessage("${plugin.prefix}MYSQLの使用を許可しました。")
+
+                                            true
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    3 -> {
+
+                        when (args[0]) {
+
+                            "mysql" -> {
+
+                                when (args[1]) {
+
+                                    "remove" -> {
+
+                                        //TODO SQLを消す処理
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    4 -> {
+
+                        when (args[0]) {
+
+                            "create" -> {
+
+                                //TODO InfinityStackを作る処理
 
                             }
 
@@ -89,5 +242,26 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
     }
 
+    private fun checkCommandStats(sender: CommandSender): Boolean {
+
+        if (!plugin.sqlStats) {
+
+            sender.sendMessage("${plugin.prefix}DBが稼働停止しています。")
+
+            return false
+
+        }
+
+        if (!plugin.pluginStats) {
+
+            sender.sendMessage("${plugin.prefix}プラグインが稼働停止しています。")
+
+            return false
+
+        }
+
+        return true
+
+    }
 
 }

@@ -42,6 +42,8 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
             var sql = "UPDATE InfinityStackTable SET "
 
+            var sqlCount = 0
+
             val itemList: MutableList<ItemStack> = mutableListOf()
 
             for (count in 0..44) {
@@ -76,14 +78,9 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
             }
 
-
-            var sqlCount = 0
-
             for (itemStack in displayMap.keys) {
 
                 if (!plugin.loadConfig.itemStackList.contains(itemStack)) {
-
-                    displayMap.remove(itemStack)
 
                     continue
 
@@ -99,23 +96,21 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                     continue
 
+                } else {
+
+                    sql += ", ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]}"
+
+                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.itemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
+
+                    itemStack.amount = displayMap[itemStack]!!
+
+                    inventory.remove(itemStack)
+
                 }
-
-                sql += ", ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]}"
-
-                player.sendMessage("${plugin.prefix}${plugin.loadConfig.itemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
-
-                itemStack.amount = displayMap[itemStack]!!
-
-                sqlCount++
-
-                inventory.remove(itemStack)
 
             }
 
             if (displayMap.isEmpty()) {
-
-                plugin.inventory.createCheckStackInventory(player)
 
                 player.playSound(player.location, Sound.BLOCK_CHEST_CLOSE, 8.0F, 0.0F)
 
@@ -129,13 +124,15 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                 plugin.mySQLManager.execute(sql)
 
+                player.playSound(player.location, Sound.BLOCK_CHEST_CLOSE, 8.0F, 0.0F)
+
+                player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 8.0F, 0.0F)
+
+            } else {
+
+                player.playSound(player.location, Sound.BLOCK_CHEST_CLOSE, 8.0F, 0.0F)
+
             }
-
-            player.playSound(player.location, Sound.BLOCK_CHEST_CLOSE, 8.0F, 0.0F)
-
-            player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 8.0F, 0.0F)
-
-            plugin.inventory.createCheckStackInventory(player)
 
         }
 
@@ -148,8 +145,6 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
         run {
 
             plugin.mySQLManager.execute("UPDATE InfinityStackTable SET ${columnName}_STATS = ${!plugin.mySQLSelect.checkStackStats(player, columnName)} WHERE UUID = '${player.uniqueId}';")
-
-            plugin.inventory.createCheckStackInventory(player)
 
         }
 
@@ -164,8 +159,6 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
             plugin.mySQLManager.execute("UPDATE InfinityStackTable SET STACK_STATS = ${!plugin.mySQLSelect.checkStackStats(player)} WHERE UUID = '${player.uniqueId}';")
 
             plugin.stackStats[player.uniqueId] = plugin.mySQLSelect.checkStackStats(player)
-
-            plugin.inventory.createCheckStackInventory(player)
 
         }
 
