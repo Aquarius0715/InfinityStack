@@ -51,9 +51,6 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
                                 sender.sendMessage("${plugin.prefix}</is plugin off>: このプラグインの利用を禁止します。")
                                 sender.sendMessage("${plugin.prefix}</is mysql on>: mysqlとの接続を許可します。")
                                 sender.sendMessage("${plugin.prefix}</is mysql off>: mysqlとの接続を禁止します。")
-                                sender.sendMessage("${plugin.prefix}</is mysql remove [ColumnName]>: InfinityStack情報を一括削除します。")
-                                sender.sendMessage("${plugin.prefix}注意！以下のコマンドは、InfinityStackを適用させたいアイテムを一つ持ちながら実行すること。")
-                                sender.sendMessage("${plugin.prefix}</is create [ColumnName] [DisplayName]>: 新しいInfinityStackを作ります。")
 
                             }
 
@@ -176,36 +173,6 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
                                     }
 
                                 }
-
-                            }
-
-                        }
-
-                    }
-
-                    3 -> {
-
-                        when (args[0]) {
-
-                            "mysql" -> {
-
-                                when (args[1]) {
-
-                                    "remove" -> {
-
-                                        //TODO SQLを消す処理
-
-                                    }
-
-                                }
-
-                            }
-
-                            "create" -> {
-
-                                plugin.setConfigData.setConfig(args[1], args[2], sender.inventory.itemInMainHand, sender)
-
-                                return true
 
                             }
 
