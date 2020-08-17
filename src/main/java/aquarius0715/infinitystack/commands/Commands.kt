@@ -201,14 +201,6 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                             }
 
-                        }
-
-                    }
-
-                    4 -> {
-
-                        when (args[0]) {
-
                             "create" -> {
 
                                 plugin.setConfigData.setConfig(args[1], args[2], sender.inventory.itemInMainHand, sender)

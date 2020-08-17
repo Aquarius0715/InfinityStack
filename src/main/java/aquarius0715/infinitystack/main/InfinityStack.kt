@@ -4,7 +4,6 @@ import aquarius0715.infinitystack.events.PlayerItemPickUpEvent
 import aquarius0715.infinitystack.events.PlayerJoinEvent
 import aquarius0715.infinitystack.commands.Commands
 import aquarius0715.infinitystack.config.LoadConfig
-import aquarius0715.infinitystack.config.SetConfigData
 import aquarius0715.infinitystack.gui.event.InventoryClickEvent
 import aquarius0715.infinitystack.gui.event.InventoryCloseEvent
 import aquarius0715.infinitystack.gui.inventory.Inventory
@@ -30,8 +29,6 @@ class InfinityStack : JavaPlugin() {
     val mySQLManager = MySQLManager(this, "InfinityStack")
 
     val mySQLSelect = MySQLSelect(this)
-
-    val setConfigData = SetConfigData(this)
 
     val mySQLInsert = MySQLInsert(this)
 
