@@ -1,7 +1,6 @@
 package aquarius0715.infinitystack.commands
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -62,19 +61,7 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                                 if (!checkCommandStats(sender)) return false
 
-                                Bukkit.broadcastMessage("${plugin.prefix}プラグインを再起動中です。")
-
-                                plugin.pluginStats = false
-
-                                plugin.sqlStats = false
-
-                                plugin.onEnable()
-
-                                Bukkit.broadcastMessage("${plugin.prefix}プラグインの再起動が終了しました。")
-
-                                plugin.pluginStats = true
-
-                                plugin.sqlStats = true
+                                plugin.reboot()
 
                                 return true
 
@@ -224,7 +211,9 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                             "create" -> {
 
-                                //TODO InfinityStackを作る処理
+                                plugin.setConfigData.setConfig(args[1], args[2], sender.inventory.itemInMainHand, sender)
+
+                                return true
 
                             }
 
