@@ -1,6 +1,7 @@
 package aquarius0715.infinitystack.mysql
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -8,32 +9,41 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-class MySQLSelect(private val plugin: InfinityStack) {
+class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
     fun isExistRecord(player: Player): Boolean {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return false
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        return checkResultSet("SELECT PLAYER_NAME FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
+        run {
+
+            if (!plugin.mySQLManager.sqlConnectSafely()) return false
+
+            return checkResultSet("SELECT PLAYER_NAME FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
+
+        }
 
     }
 
     fun setItem(player: Player, inventory: Inventory) {
 
-        val list: ArrayList<String> = arrayListOf()
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        val changeStackStatsButton = ItemStack(Material.COMPASS)
-        val changeStackStatsButtonMeta = changeStackStatsButton.itemMeta
+        run {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return
+            if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        val resultSet = plugin.mySQLManager.query("SELECT * FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
+            val changeStackStatsButton = ItemStack(Material.COMPASS)
+            val changeStackStatsButtonMeta = changeStackStatsButton.itemMeta
 
-        resultSet!!.next()
+            val list: ArrayList<String> = arrayListOf()
+
+            val resultSet = plugin.mySQLManager.query(
+                    "SELECT * FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
+
+            resultSet!!.next()
 
             for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
-
-                list.clear()
 
                 val material = plugin.loadConfig.itemStackList[count].type
                 val button = ItemStack(material)
@@ -43,165 +53,132 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
                 if (resultSet.getBoolean("${columnName}_STATS")) {
 
-                    list.add("${ChatColor.WHITE}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収: ${ChatColor.GREEN}${ChatColor.BOLD}${ChatColor.UNDERLINE}有効")
+                    list.add("${ChatColor.WHITE}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収: " +
+                            "${ChatColor.GREEN}${ChatColor.BOLD}${ChatColor.UNDERLINE}有効")
 
                 } else {
 
-                    list.add("${ChatColor.WHITE}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収: ${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}無効")
+                    list.add("${ChatColor.WHITE}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収: " +
+                            "${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}無効")
 
                 }
 
-                list.add("${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}左クリック${ChatColor.WHITE}${ChatColor.BOLD}で1スタック取り出し")
+                list.add("${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}左クリック: " +
+                        "${ChatColor.WHITE}${ChatColor.BOLD}1スタック取り出し")
 
-                list.add("${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}右クリック${ChatColor.WHITE}${ChatColor.BOLD}で1個取り出し")
+                list.add("${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}右クリック: " +
+                        "${ChatColor.WHITE}${ChatColor.BOLD}1個取り出し")
 
-                list.add("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}${ChatColor.UNDERLINE}シフト+左クリック${ChatColor.WHITE}${ChatColor.BOLD}で自動回収切り替え")
+                list.add("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}${ChatColor.UNDERLINE}シフト+左クリック: " +
+                        "${ChatColor.WHITE}${ChatColor.BOLD}自動回収切り替え")
 
-                    buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.loadConfig.displayNameList[count]}")
+                buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.loadConfig.displayNameList[count]}")
 
-                    buttonMeta.lore = list
+                buttonMeta.lore = list
 
-                    button.itemMeta = buttonMeta
+                button.itemMeta = buttonMeta
 
-                    inventory.setItem(count, button)
+                inventory.setItem(count, button)
 
                 list.clear()
 
-        }
 
-        changeStackStatsButtonMeta.setDisplayName("${ChatColor.YELLOW}${ChatColor.BOLD}${ChatColor.UNDERLINE}ここをクリックして全体の自動回収を切り替える。")
+            }
 
+            changeStackStatsButtonMeta.setDisplayName("${ChatColor.YELLOW}${ChatColor.BOLD}${ChatColor.UNDERLINE}自動回収切り替え")
 
-        if (resultSet.getBoolean("STACK_STATS")) {
 
-            list.add("${ChatColor.BOLD}現在の自動回収: ${ChatColor.GREEN}${ChatColor.BOLD}${ChatColor.UNDERLINE}有効")
+            if (resultSet.getBoolean("STACK_STATS")) {
 
-        } else {
-
-            list.add("${ChatColor.BOLD}現在の自動回収: ${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}無効")
-
-        }
-
-        changeStackStatsButtonMeta.lore = list
-        changeStackStatsButton.itemMeta = changeStackStatsButtonMeta
-
-        inventory.setItem(52, changeStackStatsButton)
-
-        list.clear()
-
-        resultSet.close()
-
-        plugin.mySQLManager.close()
-
-        return
-
-    }
-
-    fun getItemOneStack(player: Player, slot: Int): ItemStack {
-
-        if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
-
-        val columnName = plugin.loadConfig.columnNameList[slot]
-
-        val resultSet = plugin.mySQLManager.query("SELECT $columnName FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
-
-        resultSet!!.next()
-
-        val amount = resultSet.getInt(columnName)
-
-        if (amount <= 0) {
-
-            player.playSound(player.location, Sound.BLOCK_STONE_BREAK, 8.0F, -2.0F)
-
-            return ItemStack(Material.AIR)
-
-        }
-
-        return if (amount < 64) {
-
-            plugin.mySQLUpDate.removeItems(player, columnName, amount)
-
-            resultSet.close()
-
-            plugin.mySQLManager.close()
-
-            plugin.inventory.createCheckStackInventory(player)
-
-            player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
-
-            ItemStack(plugin.loadConfig.itemStackList[slot].type, amount)
-
-
-        } else {
-
-            plugin.mySQLUpDate.removeItems(player, columnName, 64)
-
-            resultSet.close()
-
-            plugin.mySQLManager.close()
-
-            plugin.inventory.createCheckStackInventory(player)
-
-            player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
-
-            ItemStack(plugin.loadConfig.itemStackList[slot].type, 64)
-
-        }
-
-    }
-
-    fun getItemOne(player: Player, slot: Int): ItemStack {
-
-        val columnName = plugin.loadConfig.columnNameList[slot]
-
-        if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
-
-        val sql = "SELECT $columnName FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
-
-        val resultSet = plugin.mySQLManager.query(sql)
-
-        resultSet!!.next()
-
-        val amount = resultSet.getInt(columnName)
-
-        resultSet.close()
-
-        plugin.mySQLManager.close()
-
-        if (amount <= 0) {
-
-            player.playSound(player.location, Sound.BLOCK_STONE_BREAK, 8.0F, -2.0F)
-
-            return ItemStack(Material.AIR)
-
-        }
-
-        plugin.mySQLUpDate.removeItems(player, columnName, 1)
-
-        plugin.inventory.createCheckStackInventory(player)
-
-        player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
-
-        return ItemStack(plugin.loadConfig.itemStackList[slot].type, 1)
-
-    }
-
-    fun checkExistColumn() {
-
-        if (!plugin.mySQLManager.sqlConnectSafely()) return
-
-        for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
-
-            if (checkResultSet("DESCRIBE InfinityStackTable ${columnName};")) {
-
-                return
+                list.add("${ChatColor.BOLD}現在の自動回収: ${ChatColor.GREEN}${ChatColor.BOLD}${ChatColor.UNDERLINE}有効")
 
             } else {
 
-              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD $columnName INT AFTER ${plugin.loadConfig.columnNameList[count - 1]};")
-              plugin.mySQLManager.execute("ALTER TABLE InfinityStackTable ADD ${columnName}_STATS BOOLEAN ${columnName};")
+                list.add("${ChatColor.BOLD}現在の自動回収: ${ChatColor.RED}${ChatColor.BOLD}${ChatColor.UNDERLINE}無効")
 
-                plugin.mySQLUpDate.setNullColumn(columnName)
+            }
+
+            changeStackStatsButtonMeta.lore = list
+            changeStackStatsButton.itemMeta = changeStackStatsButtonMeta
+
+            inventory.setItem(52, changeStackStatsButton)
+
+            list.clear()
+
+            resultSet.close()
+
+            plugin.mySQLManager.close()
+
+            return
+
+        }
+
+    }
+
+    fun getItemStack(player: Player, slot: Int, getAmount: Int): ItemStack {
+
+        Bukkit.getScheduler().runTask(plugin, this)
+
+        run {
+
+            if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
+
+            val columnName = plugin.loadConfig.columnNameList[slot]
+
+            val maxStackSize = plugin.loadConfig.itemStackList[slot].maxStackSize
+
+            val resultSet = plugin.mySQLManager.query("SELECT $columnName FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
+
+            resultSet!!.next()
+
+            val amount = resultSet.getInt(columnName)
+
+            resultSet.close()
+
+            plugin.mySQLManager.close()
+
+            if (amount <= 0) {
+
+                player.playSound(player.location, Sound.BLOCK_STONE_BREAK, 8.0F, -2.0F)
+
+                return ItemStack(Material.AIR)
+
+            }
+
+            if (getAmount == 1) {
+
+                plugin.mySQLUpDate.removeItems(player, columnName, 1)
+
+                plugin.inventory.createCheckStackInventory(player)
+
+                player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
+
+                return ItemStack(plugin.loadConfig.itemStackList[slot].type, 1)
+
+            } else {
+
+                return if (amount < maxStackSize) {
+
+                    plugin.mySQLUpDate.removeItems(player, columnName, amount)
+
+                    plugin.inventory.createCheckStackInventory(player)
+
+                    player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
+
+                    ItemStack(plugin.loadConfig.itemStackList[slot].type, amount)
+
+
+                } else {
+
+                    plugin.mySQLUpDate.removeItems(player, columnName, maxStackSize)
+
+                    plugin.inventory.createCheckStackInventory(player)
+
+                    player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
+
+                    ItemStack(plugin.loadConfig.itemStackList[slot].type, maxStackSize)
+
+                }
 
             }
 
@@ -209,31 +186,84 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
     }
 
+
+    fun checkExistColumn() {
+
+        Bukkit.getScheduler().runTask(plugin, this)
+
+        run {
+
+            if (!plugin.mySQLManager.sqlConnectSafely()) return
+
+            var sql = "ALTER TABLE InfinityStackTable "
+
+            var sqlCount = 0
+
+            for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
+
+                if (checkResultSet("DESCRIBE InfinityStackTable ${columnName};")) {
+
+                    continue
+
+                } else {
+
+                    if (sqlCount == 0) {
+
+                        sql += "ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.columnNameList[count - 1]}" +
+                                ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.columnNameList[count - 1]}_STATS"
+
+                        sqlCount++
+
+                        continue
+
+                    }
+
+                    sql += ", ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.columnNameList[count - 1]}" +
+                            ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.columnNameList[count - 1]}_STATS"
+
+                }
+
+            }
+
+            sql += ";"
+
+            plugin.mySQLManager.execute(sql)
+
+        }
+
+    }
+
     fun checkStackStats (player: Player): Boolean {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return false
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        val sql = "SELECT STACK_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
+        run {
 
-        val resultSet = plugin.mySQLManager.query(sql)
+            if (!plugin.mySQLManager.sqlConnectSafely()) return false
 
-        resultSet!!.next()
+            val sql = "SELECT STACK_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
 
-        if (resultSet.getBoolean("STACK_STATS")) {
+            val resultSet = plugin.mySQLManager.query(sql)
 
-            resultSet.close()
+            resultSet!!.next()
 
-            plugin.mySQLManager.close()
+            if (resultSet.getBoolean("STACK_STATS")) {
 
-            return true
+                resultSet.close()
 
-        } else {
+                plugin.mySQLManager.close()
 
-            resultSet.close()
+                return true
 
-            plugin.mySQLManager.close()
+            } else {
 
-            return false
+                resultSet.close()
+
+                plugin.mySQLManager.close()
+
+                return false
+
+            }
 
         }
 
@@ -241,49 +271,45 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
     fun checkStackStats (player: Player, columnName: String): Boolean {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return false
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        val sql = "SELECT ${columnName}_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
+        run {
 
-        val resultSet = plugin.mySQLManager.query(sql)
+            if (!plugin.mySQLManager.sqlConnectSafely()) return false
 
-        resultSet!!.next()
+            val sql = "SELECT ${columnName}_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
 
-        val stats = resultSet.getBoolean("${columnName}_STATS")
+            val resultSet = plugin.mySQLManager.query(sql)
 
-        resultSet.close()
+            resultSet!!.next()
 
-        plugin.mySQLManager.close()
+            val stats = resultSet.getBoolean("${columnName}_STATS")
 
-        return stats
+            resultSet.close()
+
+            plugin.mySQLManager.close()
+
+            return stats
+
+        }
 
     }
 
     fun getStackStats(player: Player, columnName: String): Boolean {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return false
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        val sql = "SELECT ${columnName}_STATS, STACK_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
+        run {
 
-        val resultSet = plugin.mySQLManager.query(sql)
+            if (!plugin.mySQLManager.sqlConnectSafely()) return false
 
-        resultSet!!.next()
+            val sql = "SELECT ${columnName}_STATS, STACK_STATS FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';"
 
-        if (!resultSet.getBoolean("STACK_STATS") || !resultSet.getBoolean("${columnName}_STATS")) return false
+            val resultSet = plugin.mySQLManager.query(sql)
 
-        resultSet.close()
+            resultSet!!.next()
 
-        plugin.mySQLManager.close()
-
-        return true
-
-    }
-
-    private fun checkResultSet(sql: String): Boolean {
-
-        val resultSet = plugin.mySQLManager.query(sql)
-
-        if (resultSet!!.next()) {
+            if (!resultSet.getBoolean("STACK_STATS") || !resultSet.getBoolean("${columnName}_STATS")) return false
 
             resultSet.close()
 
@@ -291,13 +317,36 @@ class MySQLSelect(private val plugin: InfinityStack) {
 
             return true
 
-        } else {
+        }
 
-            resultSet.close()
+    }
 
-            plugin.mySQLManager.close()
+    private fun checkResultSet(sql: String): Boolean {
 
-            return false
+        Bukkit.getScheduler().runTask(plugin, this)
+
+        run {
+
+            val resultSet = plugin.mySQLManager.query(sql)
+
+            if (resultSet!!.next()) {
+
+                resultSet.close()
+
+                plugin.mySQLManager.close()
+
+                return true
+
+            } else {
+
+                resultSet.close()
+
+                plugin.mySQLManager.close()
+
+                return false
+
+
+            }
 
         }
 

@@ -1,13 +1,11 @@
 package aquarius0715.infinitystack.gui.event
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
 
 class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
@@ -18,6 +16,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
         val player = event.whoClicked as Player
 
         if (event.inventory != plugin.inventory.checkStackInventoryMap[player.uniqueId]) return
+
+        if (event.inventory == player.inventory) return
 
         event.isCancelled = true
 
@@ -59,7 +59,7 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
                 !(event.isRightClick && event.isLeftClick) &&
                 !(event.isLeftClick && event.isShiftClick)) {
 
-            player.inventory.addItem(plugin.mySQLSelect.getItemOneStack(player, event.slot))
+            player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, plugin.loadConfig.itemStackList[event.slot].maxStackSize))
 
         }
 
@@ -67,7 +67,7 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
                 !(event.isRightClick && event.isLeftClick) &&
                 !(event.isRightClick && event.isShiftClick)) {
 
-            player.inventory.addItem(plugin.mySQLSelect.getItemOne(player, event.slot))
+            player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, 1))
 
         }
 
@@ -89,6 +89,8 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         if (event.inventory != plugin.inventory.setItemInventoryMap[player.uniqueId]) return
 
+        if (event.inventory == player.inventory) return
+
         when (event.slot) {
 
             45, 46, 47, 51, 52, 53 -> {
@@ -101,59 +103,7 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
                 event.isCancelled = true
 
-                var sql = "UPDATE InfinityStackTable SET "
-
-                val itemList: MutableList<ItemStack> = mutableListOf()
-
-                for (count in 0..44) {
-
-                    if (event.inventory.getItem(count) == null) continue
-
-                    val itemStack = event.inventory.getItem(count)
-
-                    val amount = itemStack!!.amount
-
-                    itemList.add(itemStack)
-
-                    itemStack.amount = 1
-
-                    if (count == 0) {
-
-                        sql += "${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + $amount "
-
-                    }
-
-                    if (plugin.loadConfig.itemStackList.contains(itemStack)) {
-
-                        sql += ", ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + $amount"
-
-                        event.inventory.setItem(count, ItemStack(Material.AIR))
-
-                    } else {
-
-                        itemStack.amount = amount
-
-                        player.inventory.addItem(itemStack)
-
-                    }
-
-                }
-
-                if (itemList.size == 0) {
-
-                    plugin.inventory.createCheckStackInventory(player)
-
-                    return
-
-                }
-
-                sql += " WHERE UUID = '${player.uniqueId}';"
-
-                plugin.mySQLManager.execute(sql)
-
-                player.sendMessage("${plugin.prefix}アイテムを登録しました。")
-
-                plugin.inventory.createCheckStackInventory(player)
+                plugin.mySQLUpDate.addItemsLocal(player, event.inventory)
 
             }
 

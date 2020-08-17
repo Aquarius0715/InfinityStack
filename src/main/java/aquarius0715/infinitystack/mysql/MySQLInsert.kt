@@ -1,36 +1,43 @@
 package aquarius0715.infinitystack.mysql
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class MySQLInsert(private val plugin: InfinityStack) {
+class MySQLInsert(private val plugin: InfinityStack): Thread() {
 
     fun insertDefaultTable(player: Player) {
 
-        if (!plugin.mySQLManager.sqlConnectSafely()) return
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        if (plugin.mySQLSelect.isExistRecord(player)) return
+        run {
 
-        var sql = "INSERT INTO InfinityStackTable " +
-                "(PLAYER_NAME, UUID, STACK_STATS"
+            if (!plugin.mySQLManager.sqlConnectSafely()) return
 
-        for (columnName in plugin.loadConfig.columnNameList) {
+            if (plugin.mySQLSelect.isExistRecord(player)) return
 
-            sql += ", ${columnName}, ${columnName}_STATS"
+            var sql = "INSERT INTO InfinityStackTable " +
+                    "(PLAYER_NAME, UUID, STACK_STATS"
+
+            for (columnName in plugin.loadConfig.columnNameList) {
+
+                sql += ", ${columnName}, ${columnName}_STATS"
+
+            }
+
+            sql += ") VALUE ('${player.name}', '${player.uniqueId}', TRUE"
+
+            for (count in plugin.loadConfig.columnNameList) {
+
+                sql += ", 0, TRUE"
+
+            }
+
+            sql += ");"
+
+            plugin.mySQLManager.execute(sql)
 
         }
-
-        sql += ") VALUE ('${player.name}', '${player.uniqueId}', TRUE"
-
-        for (count in plugin.loadConfig.columnNameList) {
-
-            sql += ", 0, TRUE"
-
-        }
-
-        sql += ");"
-
-        plugin.mySQLManager.execute(sql)
 
     }
 

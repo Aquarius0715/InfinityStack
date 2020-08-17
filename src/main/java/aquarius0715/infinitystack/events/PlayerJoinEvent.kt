@@ -11,6 +11,8 @@ class PlayerJoinEvent(private val plugin: InfinityStack): Listener {
 
     fun onJoin(event: PlayerJoinEvent) {
 
+        if (!plugin.sqlStats) return
+
         plugin.mySQLInsert.insertDefaultTable(event.player)
 
         plugin.stackStats[event.player.uniqueId] = plugin.mySQLSelect.checkStackStats(event.player)

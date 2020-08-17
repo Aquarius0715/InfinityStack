@@ -15,7 +15,23 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
             sender.sendMessage("${plugin.prefix}このコマンドはプレーヤーしか使うことができません。")
 
-            return false
+            return true
+
+        }
+
+        if (!plugin.sqlStats) {
+
+            sender.sendMessage("${plugin.prefix}DBが稼働停止しています。")
+
+            return true
+
+        }
+
+        if (!plugin.pluginStats) {
+
+            sender.sendMessage("${plugin.prefix}プラグインが稼働停止しています。")
+
+            return true
 
         }
 
@@ -31,6 +47,8 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                         sender.playSound(sender.location, Sound.BLOCK_ENDER_CHEST_OPEN, 8.0F, 0.0F)
 
+                        return true
+
                     }
 
                     1 -> {
@@ -39,7 +57,21 @@ class Commands(private val plugin: InfinityStack): CommandExecutor {
 
                             "help" -> {
 
+                                sender.sendMessage("${plugin.prefix}</is>: InfinityStackのメインメニューを開きます。")
+                                sender.sendMessage("${plugin.prefix}</is help>: この説明画面を開きます。")
+                                sender.sendMessage("${plugin.prefix}</is plugin on>: このプラグインの利用を許可します。")
+                                sender.sendMessage("${plugin.prefix}</is plugin off>: このプラグインの利用を禁止します。")
+                                sender.sendMessage("${plugin.prefix}</is mysql on>: mysqlとの接続を許可します。")
+                                sender.sendMessage("${plugin.prefix}</is mysql off>: mysqlとの接続を禁止します。")
+                                sender.sendMessage("${plugin.prefix}</is mysql remove [ColumnName]>: 指定したInfinityStack情報を一括削除します。")
+                                sender.sendMessage("${plugin.prefix}注意！以下のコマンドは、InfinityStackを適用させたいアイテムを一つ持ちながら実行すること。")
+                                sender.sendMessage("${plugin.prefix}</is create [ColumnName] [DisplayName]>: displayNameを決めて新しいInfinityStackを作ります。")
 
+                            }
+
+                            "reload" -> {
+
+                                plugin.onEnable()
 
                             }
 

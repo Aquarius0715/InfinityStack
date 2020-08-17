@@ -1,34 +1,46 @@
 package aquarius0715.infinitystack.events
 
 import aquarius0715.infinitystack.main.InfinityStack
+import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerPickupItemEvent
 
-class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener {
+class PlayerItemPickUpEvent(private val plugin: InfinityStack): Listener, Thread() {
 
     @EventHandler
 
     fun onPickUp(event: PlayerPickupItemEvent) {
 
-        val player = event.player
+        Bukkit.getScheduler().runTask(plugin, this)
 
-        val item = event.item.itemStack
+        run {
 
-        val amount = item.amount
+            val player = event.player
 
-        item.amount = 1
+            val item = event.item.itemStack
 
-        if (!plugin.stackStats[event.player.uniqueId]!!) return
+            val amount = item.amount
 
-        if (!plugin.mySQLSelect.getStackStats(player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!)) return
+            item.amount = 1
 
-        if (plugin.loadConfig.itemStackList.contains(item)) {
+            if (!plugin.sqlStats) return
 
-            player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 8.0F, -1.0F)
+            if (!plugin.stackStats[event.player.uniqueId]!!) return
 
-            plugin.mySQLUpDate.addItems(event.player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!, amount, event)
+            if (!plugin.loadConfig.itemStackList.contains(item)) return
+
+            if (!plugin.mySQLSelect.getStackStats(player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!)) return
+
+            if (plugin.loadConfig.itemStackList.contains(item)) {
+
+                player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 8.0F, -1.0F)
+
+                plugin.mySQLUpDate.addItems(event.player, plugin.loadConfig.itemStackAndColumnNameMap[item]!!, amount, event)
+
+
+            }
 
         }
 

@@ -38,6 +38,10 @@ class InfinityStack : JavaPlugin() {
 
     val loadConfig = LoadConfig(this)
 
+    var sqlStats = true
+
+    var pluginStats = true
+
     override fun onEnable() {
 
         saveDefaultConfig()

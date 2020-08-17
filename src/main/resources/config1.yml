@@ -4,6 +4,7 @@ mysql:
   user: root
   pass: mk871396
   db: InfinityStackDataBase
+  log: true
 
 
 itemData:
