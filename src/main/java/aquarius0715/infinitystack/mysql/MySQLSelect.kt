@@ -43,9 +43,9 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
             resultSet!!.next()
 
-            for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
+            for ((count, columnName) in plugin.loadConfig.stackItemColumnNameList.withIndex()) {
 
-                val material = plugin.loadConfig.itemStackList[count].type
+                val material = plugin.loadConfig.stackItemItemStackList[count].type
                 val button = ItemStack(material)
                 val buttonMeta = button.itemMeta
 
@@ -72,7 +72,7 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
                 list.add("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}${ChatColor.UNDERLINE}シフト+左クリック: " +
                         "${ChatColor.WHITE}${ChatColor.BOLD}自動回収切り替え")
 
-                buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.loadConfig.displayNameList[count]}")
+                buttonMeta.setDisplayName("${ChatColor.GOLD}${ChatColor.BOLD}${ChatColor.UNDERLINE}${plugin.loadConfig.stackItemDisplayNameList[count]}")
 
                 buttonMeta.lore = list
 
@@ -123,9 +123,9 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
             if (!plugin.mySQLManager.sqlConnectSafely()) return ItemStack(Material.AIR)
 
-            val columnName = plugin.loadConfig.columnNameList[slot]
+            val columnName = plugin.loadConfig.stackItemColumnNameList[slot]
 
-            val maxStackSize = plugin.loadConfig.itemStackList[slot].maxStackSize
+            val maxStackSize = plugin.loadConfig.stackItemItemStackList[slot].maxStackSize
 
             val resultSet = plugin.mySQLManager.query("SELECT $columnName FROM InfinityStackTable WHERE UUID = '${player.uniqueId}';")
 
@@ -151,7 +151,7 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
-                return ItemStack(plugin.loadConfig.itemStackList[slot].type, 1)
+                return ItemStack(plugin.loadConfig.stackItemItemStackList[slot].type, 1)
 
             } else {
 
@@ -161,7 +161,7 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                     player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
-                    ItemStack(plugin.loadConfig.itemStackList[slot].type, amount)
+                    ItemStack(plugin.loadConfig.stackItemItemStackList[slot].type, amount)
 
 
                 } else {
@@ -170,7 +170,7 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                     player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
-                    ItemStack(plugin.loadConfig.itemStackList[slot].type, maxStackSize)
+                    ItemStack(plugin.loadConfig.stackItemItemStackList[slot].type, maxStackSize)
 
                 }
 
@@ -193,7 +193,7 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
             var sqlCount = 0
 
-            for ((count, columnName) in plugin.loadConfig.columnNameList.withIndex()) {
+            for ((count, columnName) in plugin.loadConfig.stackItemColumnNameList.withIndex()) {
 
                 if (checkResultSet("DESCRIBE InfinityStackTable ${columnName};")) {
 
@@ -203,8 +203,8 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                     if (sqlCount == 0) {
 
-                        sql += "ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.columnNameList[count - 1]}" +
-                                ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.columnNameList[count - 1]}_STATS"
+                        sql += "ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.stackItemColumnNameList[count - 1]}" +
+                                ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.stackItemColumnNameList[count - 1]}_STATS"
 
                         sqlCount++
 
@@ -212,8 +212,8 @@ class MySQLSelect(private val plugin: InfinityStack): Thread() {
 
                     }
 
-                    sql += ", ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.columnNameList[count - 1]}" +
-                            ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.columnNameList[count - 1]}_STATS"
+                    sql += ", ADD $columnName INT NOT NULL DEFAULT 0 AFTER ${plugin.loadConfig.stackItemColumnNameList[count - 1]}" +
+                            ", ADD ${columnName}_STATS BOOLEAN NOT NULL DEFAULT TRUE AFTER ${plugin.loadConfig.stackItemColumnNameList[count - 1]}_STATS"
 
                 }
 

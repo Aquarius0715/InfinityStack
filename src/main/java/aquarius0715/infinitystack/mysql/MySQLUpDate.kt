@@ -64,7 +64,7 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                 displayMap[itemStack] = displayMap[itemStack]?.plus(amount)!!
 
-                if (!plugin.loadConfig.itemStackList.contains(itemStack)) {
+                if (!plugin.loadConfig.stackItemItemStackList.contains(itemStack)) {
 
                     itemStack.amount = amount
 
@@ -80,7 +80,7 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
             for (itemStack in displayMap.keys) {
 
-                if (!plugin.loadConfig.itemStackList.contains(itemStack)) {
+                if (!plugin.loadConfig.stackItemItemStackList.contains(itemStack)) {
 
                     continue
 
@@ -88,9 +88,9 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                 if (sqlCount == 0) {
 
-                    sql += "${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]} "
+                    sql += "${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]} "
 
-                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.itemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
+                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
 
                     sqlCount++
 
@@ -98,9 +98,9 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                 } else {
 
-                    sql += ", ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.itemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]}"
+                    sql += ", ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]}"
 
-                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.itemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
+                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
 
                     itemStack.amount = displayMap[itemStack]!!
 

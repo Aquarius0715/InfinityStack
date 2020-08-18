@@ -6,7 +6,7 @@
 
     <groupId>aquarius0715</groupId>
     <artifactId>InfinityStack</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>InfinityStack</name>

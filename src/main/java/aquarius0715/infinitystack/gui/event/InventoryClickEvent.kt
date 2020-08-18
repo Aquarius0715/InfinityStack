@@ -53,13 +53,13 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         }
 
-        if (plugin.loadConfig.itemStackList.size < event.slot + 1) return
+        if (plugin.loadConfig.stackItemItemStackList.size < event.slot + 1) return
 
         if (event.isLeftClick &&
                 !(event.isRightClick && event.isLeftClick) &&
                 !(event.isLeftClick && event.isShiftClick)) {
 
-            player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, plugin.loadConfig.itemStackList[event.slot].maxStackSize))
+            player.inventory.addItem(plugin.mySQLSelect.getItemStack(player, event.slot, plugin.loadConfig.stackItemItemStackList[event.slot].maxStackSize))
 
             plugin.inventory.createCheckStackInventory(player)
 
@@ -77,7 +77,7 @@ class InventoryClickEvent(val plugin: InfinityStack): Listener {
 
         if (event.isShiftClick && event.isLeftClick) {
 
-            plugin.mySQLUpDate.setStackStats(player, plugin.loadConfig.columnNameList[event.slot])
+            plugin.mySQLUpDate.setStackStats(player, plugin.loadConfig.stackItemColumnNameList[event.slot])
 
             player.playSound(player.location, Sound.UI_BUTTON_CLICK, 8.0F, 0.0F)
 
