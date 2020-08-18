@@ -297,20 +297,12 @@ class MySQLManager(private val plugin: InfinityStack, private val conName: Strin
 
         }
 
-        val columnList: MutableList<String> = mutableListOf()
-
-        for (column in plugin.config.getConfigurationSection("itemData")!!.getKeys(false)) {
-
-            columnList.add(column)
-
-        }
-
         execute("create table if not exists InfinityStackTable (" +
                 "PLAYER_NAME VARCHAR(16), " +
                 "UUID VARCHAR(36) not null primary key, " +
                 "STACK_STATS BOOLEAN, " +
-                "${columnList[0]} INT, " +
-                "${columnList[0]}_STATS BOOLEAN" +
+                "${plugin.loadConfig.stackItemColumnNameList[0]} INT, " +
+                "${plugin.loadConfig.stackItemColumnNameList[0]}_STATS BOOLEAN" +
                 ");")
 
     }
