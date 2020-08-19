@@ -34,39 +34,20 @@ class LoadConfig(private val plugin: InfinityStack) {
 
         for (categoryName in config.getConfigurationSection("INFINITY_STACK")!!.getKeys(false)) {
 
-            val categoryDisplayName = config.getString("INFINITY_STACK.CATEGORY_DATA.$categoryName.CATEGORY_DISPLAY_NAME")!!
-            val categoryItemStack = ItemStack(Material.matchMaterial("${config.getString("INFINITY_STACK.CATEGORY_DATA.$categoryName.CATEGORY_DISPLAY_NAME.CATEGORY_ITEM")}") ?: return)
-
-            categoryNameList.add(categoryName)
-            categoryDisplayNameList.add(categoryDisplayName)
-            categoryItemStackList.add(categoryItemStack)
-
-        }
-
-        for (categoryName in config.getConfigurationSection("INFINITY_STACK")!!.getKeys(false)) {
-
             categoryNameList.add(categoryName)
 
-            for (categoryDisplayName in config.getConfigurationSection("INFINITY_STACK.$categoryName")!!.getKeys(false)) {
+            categoryDisplayNameList.add(config.getString("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME")!!)
 
-                categoryDisplayNameList.add(categoryDisplayName)
+            categoryItemStackList.add(ItemStack(Material.matchMaterial(config.getString("INFINITY_STACK.$categoryName.CATEGORY_ITEM")!!)!!))
 
-                for (categoryMaterial in config.getConfigurationSection("INFINITY_STACK.$categoryName.$categoryDisplayName")!!.getKeys(false)) {
+            for (columnName in config.getConfigurationSection("INFINITY_STACK.$categoryName.CATEGORY_NAME")!!.getKeys(false)) {
 
-                    categoryItemStackList.add(ItemStack(Material.matchMaterial(categoryMaterial) ?: return))
+                val itemStack = plugin.convertItems.itemFromBase64(config.getString("INFINITY_STACK.$categoryName.CATEGORY_NAME.$columnName.BASE64"))!!
+                itemStack.amount = 1
 
-                    for (columnName in config.getConfigurationSection("INFINITY_STACK.$categoryName.$categoryDisplayName.$categoryMaterial")!!.getKeys(false)) {
-
-                        val itemStack = plugin.convertItems.itemFromBase64(config.getString("INFINITY_STACK.$categoryName.$categoryDisplayName.$categoryMaterial.$columnName.BASE64"))!!
-                        itemStack.amount = 1
-
-                        stackItemColumnNameList.add(config.getString("INFINITY_STACK.$categoryName.$categoryDisplayName.$categoryMaterial.$columnName")!!)
-                        stackItemDisplayNameList.add(config.getString("INFINITY_STACK.$categoryName.$categoryDisplayName.$categoryMaterial.$columnName.DISPLAY_NAME")!!)
-                        stackItemItemStackList.add(itemStack)
-
-                    }
-
-                }
+                stackItemColumnNameList.add(columnName)
+                stackItemDisplayNameList.add(config.getString("INFINITY_STACK.$categoryName.CATEGORY_NAME.$columnName.DISPLAY_NAME")!!)
+                stackItemItemStackList.add(itemStack)
 
             }
 
