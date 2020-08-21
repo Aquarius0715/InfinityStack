@@ -90,7 +90,7 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                     sql += "${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]} "
 
-                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
+                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayNameMap[itemStack]}を${displayMap[itemStack]}個登録しました。")
 
                     sqlCount++
 
@@ -100,7 +100,7 @@ class MySQLUpDate(private val plugin: InfinityStack): Thread() {
 
                     sql += ", ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} = ${plugin.loadConfig.stackItemItemStackAndColumnNameMap[itemStack]} + ${displayMap[itemStack]}"
 
-                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayName[itemStack]}を${displayMap[itemStack]}個登録しました。")
+                    player.sendMessage("${plugin.prefix}${plugin.loadConfig.stackItemItemStackAndDisplayNameMap[itemStack]}を${displayMap[itemStack]}個登録しました。")
 
                     itemStack.amount = displayMap[itemStack]!!
 

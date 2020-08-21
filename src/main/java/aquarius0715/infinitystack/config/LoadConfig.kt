@@ -1,20 +1,19 @@
 package aquarius0715.infinitystack.config
 
 import aquarius0715.infinitystack.main.InfinityStack
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 class LoadConfig(private val plugin: InfinityStack) {
 
     val stackItemItemStackAndColumnNameMap: MutableMap<ItemStack, String> = mutableMapOf()
-    val stackItemItemStackAndDisplayName: MutableMap<ItemStack, String> = mutableMapOf()
+    val stackItemItemStackAndDisplayNameMap: MutableMap<ItemStack, String> = mutableMapOf()
     val stackItemItemStackList: MutableList<ItemStack> = mutableListOf()
     val stackItemColumnNameList: MutableList<String> = mutableListOf()
     val stackItemDisplayNameList: MutableList<String> = mutableListOf()
 
     val categoryNameList: MutableList<String> = mutableListOf()
     val categoryDisplayNameList: MutableList<String> = mutableListOf()
-    val categoryItemStackList: MutableList<ItemStack> = mutableListOf()
+    val categoryItemStackList: MutableList<String> = mutableListOf() //TODO ここのItemStackだった
 
     fun loadConfig() {
 
@@ -23,7 +22,7 @@ class LoadConfig(private val plugin: InfinityStack) {
         plugin.reloadConfig()
 
         stackItemItemStackAndColumnNameMap.clear()
-        stackItemItemStackAndDisplayName.clear()
+        stackItemItemStackAndDisplayNameMap.clear()
         stackItemItemStackList.clear()
         stackItemColumnNameList.clear()
         stackItemDisplayNameList.clear()
@@ -38,19 +37,28 @@ class LoadConfig(private val plugin: InfinityStack) {
 
             categoryDisplayNameList.add(config.getString("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME")!!)
 
-            categoryItemStackList.add(ItemStack(Material.matchMaterial(config.getString("INFINITY_STACK.$categoryName.CATEGORY_ITEM")!!)!!))
+            categoryItemStackList.add(config.getString("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME.CATEGORY_ITEM")!!)
 
-            for (columnName in config.getConfigurationSection("INFINITY_STACK.$categoryName.CATEGORY_NAME")!!.getKeys(false)) {
+            for (itemColumnName in config.getConfigurationSection("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME.CATEGORY_ITEM.ITEM_DATA")!!.getKeys(false)) {
 
-                val itemStack = plugin.convertItems.itemFromBase64(config.getString("INFINITY_STACK.$categoryName.CATEGORY_NAME.$columnName.BASE64"))!!
+                val displayName = config.getString("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME.CATEGORY_ITEM.ITEM_DATA.$itemColumnName.DISPLAY_NAME")!!
+
+                val itemStack = plugin.convertItems.itemFromBase64(config.getString("INFINITY_STACK.$categoryName.CATEGORY_DISPLAY_NAME.CATEGORY_ITEM.ITEM_DATA.$itemColumnName.BASE64"))!!
+
                 itemStack.amount = 1
 
-                stackItemColumnNameList.add(columnName)
-                stackItemDisplayNameList.add(config.getString("INFINITY_STACK.$categoryName.CATEGORY_NAME.$columnName.DISPLAY_NAME")!!)
+                stackItemColumnNameList.add(itemColumnName)
+
+                stackItemDisplayNameList.add(displayName)
+
                 stackItemItemStackList.add(itemStack)
 
-            }
+                stackItemItemStackAndColumnNameMap[itemStack] = itemColumnName
 
+                stackItemItemStackAndDisplayNameMap[itemStack] = displayName
+
+
+            }
         }
 
     }
